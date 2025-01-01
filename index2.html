@@ -659,86 +659,93 @@
 
 
     $(document).ready(function () {
-      var cartData = [];
+  var cartData = [];
 
-      // Event handler for + and - buttons
-      $('.plus, .minus').click(function () {
-        var $quantitySpan = $(this).siblings('.quantity');
-        var currentQuantity = parseInt($quantitySpan.text());
-        var $card = $(this).closest('.card');
-        var itemTitle = $card.find('.card-title').text();
-        var itemPrice = parseFloat($card.find('.card-text').text().replace('Price: ₹', ''));
+  // Event handler for + and - buttons
+  $('.plus, .minus').click(function () {
+    var $quantitySpan = $(this).siblings('.quantity');
+    var currentQuantity = parseInt($quantitySpan.text());
+    var $card = $(this).closest('.card');
+    var itemTitle = $card.find('.card-title').text();
+    var itemPrice = parseFloat($card.find('.card-text').text().replace('Price: ₹', ''));
 
-        if ($(this).hasClass('plus')) {
-          currentQuantity++;
-        } else if ($(this).hasClass('minus') && currentQuantity > 0) {
-          currentQuantity--;
-        }
+    if ($(this).hasClass('plus')) {
+      currentQuantity++;
+    } else if ($(this).hasClass('minus') && currentQuantity > 0) {
+      currentQuantity--;
+    }
 
-        $quantitySpan.text(currentQuantity);
+    $quantitySpan.text(currentQuantity);
 
-        // Update cart data
-        if (currentQuantity > 0) {
-          var existingItem = cartData.find(item => item.title === itemTitle);
-          if (existingItem) {
-            existingItem.quantity = currentQuantity;
-          } else {
-            cartData.push({ title: itemTitle, price: itemPrice, quantity: currentQuantity });
-          }
-        } else {
-          cartData = cartData.filter(item => item.title !== itemTitle);
-        }
-
-        // Update the cart UI
-        updateCartUI();
-      });
-
-      // Function to update the cart UI
-      function updateCartUI() {
-        var $cartItemsContainer = $('#cart-items-container');
-        $cartItemsContainer.empty(); // Clear previous cart items
-
-        if (cartData.length > 0) {
-          // Add the cart items
-          cartData.forEach(function (item) {
-            var cartItemHtml = '<div class="cart-item">' +
-              '<p>' + item.title + ' - ₹' + item.price + ' x ' + item.quantity + '</p>' +
-              '</div>';
-            $cartItemsContainer.append(cartItemHtml);
-          });
-        } else {
-          $cartItemsContainer.append('<p>Your cart is empty.</p>');
-        }
+    // Update cart data
+    if (currentQuantity > 0) {
+      var existingItem = cartData.find(item => item.title === itemTitle);
+      if (existingItem) {
+        existingItem.quantity = currentQuantity;
+        existingItem.total = itemPrice * currentQuantity;
+      } else {
+        cartData.push({ title: itemTitle, price: itemPrice, quantity: currentQuantity, total: itemPrice * currentQuantity });
       }
+    } else {
+      cartData = cartData.filter(item => item.title !== itemTitle);
+    }
 
-      // Cart Toggle Method
-      $(".fa-shopping-cart").click(function () {
-        $(".content").toggleClass("d-none");
-        $("#cart-container").toggleClass("d-none");
+    // Update the cart UI
+    updateCartUI();
+  });
+
+  // Function to update the cart UI
+  function updateCartUI() {
+    var $cartItemsContainer = $('#cart-items-container');
+    $cartItemsContainer.empty(); // Clear previous cart items
+
+    let grandTotal = 0;
+
+    if (cartData.length > 0) {
+      // Add the cart items
+      cartData.forEach(function (item) {
+        var cartItemHtml = '<div class="cart-item">' +
+          '<p>' + item.title + ' - ₹' + item.price + ' x ' + item.quantity + ' = ₹' + item.total.toFixed(2) + '</p>' +
+          '</div>';
+        $cartItemsContainer.append(cartItemHtml);
+
+        grandTotal += item.total;
       });
 
-      $(".Menu").click(function () {
-        $(".content").removeClass("d-none");
-        $("#cart-container").addClass("d-none");
-      });
+      // Add Grand Total
+      $cartItemsContainer.append('<div class="cart-grand-total">' +
+        '<p><strong>Grand Total: ₹' + grandTotal.toFixed(2) + '</strong></p>' +
+        '</div>');
+    } else {
+      $cartItemsContainer.append('<p>Your cart is empty.</p>');
+    }
+  }
 
-      $(".Home").click(function () {
-        $(".content").removeClass("d-none");
-        $("#cart-container").addClass("d-none");
-      });
+  // Cart Toggle Method
+  $(".fa-shopping-cart").click(function () {
+    $(".content").toggleClass("d-none");
+    $("#cart-container").toggleClass("d-none");
+  });
 
-      $(".Confirm").click(function () {
-        alert("Order Confirmed !!");
-        $("#cart-container").toggleClass("d-none");
-        $(".content").removeClass("d-none");
-      });
+  $(".Menu").click(function () {
+    $(".content").removeClass("d-none");
+  });
 
-      $(".Cancel").click(function () {
-        alert("Order Cancelled.");
-        $("#cart-container").toggleClass("d-none");
-        $(".content").removeClass("d-none");
-      });
+  $(".Home").click(function () {
+    $(".content").removeClass("d-none");
+  });
 
+  $(".Confirm").click(function () {
+    alert("Order Confirmed !!");
+    $("#cart-container").toggleClass("d-none");
+    $(".content").removeClass("d-none");
+  });
+
+  $(".Cancel").click(function () {
+    alert("Order Cancelled.");
+    $("#cart-container").toggleClass("d-none");
+    $(".content").removeClass("d-none");
+  });
       $("#mode-toggle").click(function () {
         $("body").toggleClass("bg-dark text-info");
       });
